@@ -1,0 +1,65 @@
+#:kivy 1.0.9
+
+Screen:
+        MDCard: 
+                size_hint: None, None
+                size: 400, 250
+                pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                elevantion: 10
+                padding: 25
+                spacing: 25
+                orientation: "vertical"
+
+
+                MDLabel:
+                        id: welcome_label
+                        text: "MouseLogger"
+                        font_size: 40
+                        halign: 'center'
+                        size_hint_y: None
+                        height: self.texture_size[1]
+                        padding_y: 15
+
+                MDTextFieldRound:
+                        id: user
+                        hint_text: "e-mail"
+                        icon_right: "email"
+                        width: 200
+                        font_size: 18
+                        pos_hint: {"center_x": 0.5}
+
+
+                LoginButton:
+                        id: btn
+                        text: "Teilnehmen"
+                        color: 0,255,0,1 # Grün machen
+                        pos_hint: {"center_x": .5, "center_y": .5}
+                
+                # Dialog: Wir nehmen Ihre Daten auf (auf Ja klicken)
+                # Werden so und so gespeichert
+                # Personenbezogen
+                # Wie speichern wir die?
+
+
+        MDProgressBar:
+                id: status_indicator
+                value: 100
+                color: 255,0,0,1
+                halign: 'center'
+                size_hint_y: None
+                padding_y: 15
+
+        MDLabel:
+                id: data_status
+                text: "Keine Daten werden aufgenommen"
+                font_size: 10
+                halign: 'center'
+                size_hint_y: None
+                height: self.texture_size[1]
+                padding_y: 15
+                theme_text_color: "Custom"
+                text_color: 1, 0, 0, 1
+
+
+# Wenn läuft = X = minimieren
+# Wenn nicht läuft schließt app
