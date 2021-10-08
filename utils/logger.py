@@ -6,12 +6,8 @@ import json
 from pynput.mouse import Listener, Button
 
 from utils.directions import Direction
+from consts import MS_TO_NS, NS_TO_MS, SAVE_INTERVAL_IN_S, RECORD_INTERVAL_IN_MS
 
-
-MS_TO_NS = 1e6
-NS_TO_MS = 1e-6
-
-SAVE_INTERVALS_IN_S = 5
 
 
 class Logger:
@@ -21,10 +17,8 @@ class Logger:
     _listen = Event()
     _dump = Event()
 
-    _RECORD_INTERVAL_NS = 25 * MS_TO_NS
-
     _movement_data = []
-    _lastMovementRecord = 0
+    _last_movement_record = 0
 
     _click_data = []
     _click_times = dict()
@@ -39,7 +33,7 @@ class Logger:
             file.write(json.dumps(data, indent=2))
 
     def dump_data(self) -> None:
-        while not self._kill.wait(SAVE_INTERVALS_IN_S):
+        while not self._kill.wait(SAVE_INTERVAL_IN_S):
             if self._dump.is_set():
                 self.dump(f'{Path.home()}/mouseDynamics/move/{int(time.time_ns() * NS_TO_MS)}.json', self._movement_data)
                 self._movement_data = []
@@ -77,11 +71,11 @@ class Logger:
         """record movement in set timesteps"""
         if not self._listen:
             return
-        if self._lastMovementRecord + self._RECORD_INTERVAL_NS <= time.time_ns():
+        if self._last_movement_record + (RECORD_INTERVAL_IN_MS * MS_TO_NS) <= time.time_ns():
             self._movement_data.append(dict(
                 timestamp=int(time.time_ns() * NS_TO_MS),
                 position=dict(x=x, y=y)))
-            self._lastMovementRecord = time.time_ns()
+            self._last_movement_record = time.time_ns()
 
     def on_click(self, x: int, y: int, button: Button, pressed: bool) -> None:
         """record clicks with clicked button, time, duration and positions"""
