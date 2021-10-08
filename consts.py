@@ -6,4 +6,6 @@ SAVE_INTERVAL_IN_S = 5
 
 UPLOAD_INTERVALS_IN_S = 5
 
-URL = 'http://localhost:3000/senddata'
+BASE_URL = "http://localhost:3000"
+AUTH_URL = f"{BASE_URL}/auth"
+SEND_URL = f"{BASE_URL}/send"

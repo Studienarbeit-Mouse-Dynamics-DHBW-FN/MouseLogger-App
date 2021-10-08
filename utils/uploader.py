@@ -1,7 +1,7 @@
 from threading import Event, Thread
 import requests
 
-from consts import UPLOAD_INTERVALS_IN_S, URL
+from consts import UPLOAD_INTERVALS_IN_S, SEND_URL
 
 
 class Uploader:
@@ -27,7 +27,7 @@ class Uploader:
             if self._upload.is_set():
                 try:
                     # Daten die hochgeladen sind löschen
-                    res = requests.post(URL, json={'test': 'x'})
+                    res = requests.post(SEND_URL, json={'test': 'x'})
                     print(res.text)
                 except:
                     print('err: no data uploaded')
