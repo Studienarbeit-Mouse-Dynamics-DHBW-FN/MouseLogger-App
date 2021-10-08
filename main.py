@@ -44,18 +44,30 @@ class LoginButton(MDRaisedButton, TouchBehavior):
         self.UPLOADER.stop()
 
 
-    def on_press(self):
-        # Check if text is E-Mail
-        email = self.parent.parent.ids.user.text # E-Mail of User
-        # REGEX: [^@]+@[^@]+\.[^@]+
-        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-            print('email wrong')
-            self.parent.parent.ids.user.error = True
-            
-            return
-        else:
+    def recording_active(self) -> None:
+        """change UI to reflect active recording"""
+        self.text = "Teilnahme zurückziehen"
+        self.parent.parent.ids.status_indicator.color = 0,255,0,1
+        self.parent.parent.ids.data_status.text_color = 0,1,0,1
+        self.parent.parent.ids.data_status.text = "Ihre Daten werden aufgenommen"
+
+    def recording_inactive(self) -> None:
+        """change UI to reflect inactive recording"""
+        self.text = "Teilnehmen"
+        self.parent.parent.ids.status_indicator.color = 255,0,0,1
+        self.parent.parent.ids.data_status.text_color = 1,0,0,1
+        self.parent.parent.ids.data_status.text = "Keine Daten werden aufgenommen"
+
+
+    def on_press(self) -> None:
+        mail = self.parent.parent.ids.user.text
+        if self.AUTHENTICATOR.valid_email(mail):
             self.parent.parent.ids.user.error = False
             self.parent.parent.ids.user.disabled = True
+        else:
+            self.parent.parent.ids.user.error = True
+            return
+
 
         if self.text == "Teilnehmen":
             if not self.AUTHENTICATOR.valid_email(mail):
@@ -75,23 +87,12 @@ class LoginButton(MDRaisedButton, TouchBehavior):
             )
             self.dialog.open()
 
-            # Update UI
-            self.text = "Teilnahme beenden"
-            self.parent.parent.ids.status_indicator.color = 0,255,0,1 
-            self.parent.parent.ids.data_status.text_color = 0,1,0,1
-            self.parent.parent.ids.data_status.text = "Ihre Daten werden aufgenommen"
-
             self.start_tracking()
+            self.recording_active()
 
         else:
-            self.text = "Teilnehmen"
             self.stop_tracking()
-
-            # Update UI
-            self.parent.parent.ids.status_indicator.color = 255,0,0,1
-            self.parent.parent.ids.data_status.text_color = 1,0,0,1
-            self.parent.parent.ids.data_status.text = "Keine Daten werden aufgenommen"
-            self.parent.parent.ids.user.disabled = False
+            self.recording_inactive()
         
 
 # App definition
