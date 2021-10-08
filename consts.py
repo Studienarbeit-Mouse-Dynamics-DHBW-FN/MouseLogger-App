@@ -5,3 +5,5 @@ RECORD_INTERVAL_IN_MS = 25
 SAVE_INTERVAL_IN_S = 5
 
 UPLOAD_INTERVALS_IN_S = 5
+
+URL = 'http://localhost:3000/senddata'

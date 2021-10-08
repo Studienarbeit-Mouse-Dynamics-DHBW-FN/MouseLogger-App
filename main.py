@@ -4,6 +4,7 @@ Config.set('graphics', 'resizable', False)
 
 # local imports
 from utils.logger import Logger
+from utils.uploader import Uploader
 
 # All Imports
 from kivymd.app import MDApp
@@ -37,14 +38,18 @@ def sendUsername(username):
 class LoginButton(MDRaisedButton, TouchBehavior):
 
     LOGGER = Logger()
+    UPLOADER = Uploader()
+
 
     def start_tracking(self) -> None:
         """start tracking and schedule tasks"""
         self.LOGGER.start()
+        self.UPLOADER.start()
 
     def stop_tracking(self) -> None:
         """stop tracking and stop scheduled tasks"""
         self.LOGGER.stop()
+        self.UPLOADER.stop()
 
 
     def on_press(self):
