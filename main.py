@@ -3,6 +3,7 @@ from kivy.config import Config
 Config.set('graphics', 'resizable', False)
 
 # local imports
+from utils.authenticator import Authenticator
 from utils.logger import Logger
 from utils.uploader import Uploader
 
@@ -25,18 +26,9 @@ from kivy.uix.popup import Popup
 
 
 
-# Send and verify Email
-def sendUsername(username):
-    url = 'http://localhost:3000/sendmail'
-    try:
-        res = requests.post(url, json={'email': username})
-        print(res.text)
-    except:
-        print('err: no username send')
-
 # Create custom Login Button
 class LoginButton(MDRaisedButton, TouchBehavior):
-
+    AUTHENTICATOR = Authenticator()
     LOGGER = Logger()
     UPLOADER = Uploader()
 
@@ -66,14 +58,10 @@ class LoginButton(MDRaisedButton, TouchBehavior):
             self.parent.parent.ids.user.disabled = True
 
         if self.text == "Teilnehmen":
-
-
-            
-            print(email)
-            if email == '':
+            if not self.AUTHENTICATOR.valid_email(mail):
                 return
-            sendUsername(email)
-            # Identify E-Mail
+            
+            self.AUTHENTICATOR.authenticate(mail)
 
             # Dialog machen
             # TODO: Dialog Buttons ansteurn
