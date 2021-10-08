@@ -11,6 +11,7 @@ from kivymd.uix.button import MDRaisedButton
 from kivymd.uix.behaviors import TouchBehavior
 import threading
 import requests
+import re
 
 # Import UI
 from kivymd.uix.button import MDFlatButton
@@ -44,27 +45,65 @@ def getData():
         time.sleep(.0025)
     print(x,y)
 
+    # Neue Logic
+    # Alle 20min stoppen
+    # Daten speichern
+
+    # Neu hochladen
+    # Daten in intervallen hochladen?
+    newUploadThread = threading.Thread(target=uploadData, args=())  # Create thread
+    newUploadThread.daemon = True                                # Daemonize thread
+    newUploadThread.start()                                      # Start the execution
+
+    # Daten auf DB Speichern
+
+
+
 # Upload Cursor Data
 def uploadData():
     url = 'http://localhost:3000/senddata'
-    res = requests.post(url, json={'test': 'x'})
-    print(res.text)
+    try:
+        # Daten die hochgeladen sind löschen
+        res = requests.post(url, json={'test': 'x'})
+        print(res.text)
+    except:
+        print('err: no data uploaded')
+        # Sleep and try again
+        time.sleep(10)
+        uploadData()
+
 
 # Send and verify Email
 def sendUsername(username):
     url = 'http://localhost:3000/sendmail'
-    res = requests.post(url, json={'email': username})
-    print(res.text)
-
+    try:
+        res = requests.post(url, json={'email': username})
+        print(res.text)
+    except:
+        print('err: no username send')
+    
 
 # Create custom Login Button
 class LoginButton(MDRaisedButton, TouchBehavior):
     def on_press(self, *args):
+
+        # Check if text is E-Mail
+        email = self.parent.parent.ids.user.text # E-Mail of User
+        # REGEX: [^@]+@[^@]+\.[^@]+
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            print('email wrong')
+            self.parent.parent.ids.user.error = True
+            
+            return
+        else:
+            self.parent.parent.ids.user.error = False
+            self.parent.parent.ids.user.disabled = True
+
         print("touched")
         if self.text == "Teilnehmen":
 
 
-            email = self.parent.parent.ids.user.text # E-Mail of User
+            
             print(email)
             if email == '':
                 return
@@ -77,10 +116,7 @@ class LoginButton(MDRaisedButton, TouchBehavior):
                 text="Ihre Daten werden nun aufgezeichnet. \nBitte bestätigen Sie Ihre E-Mail um mit der Aufzeichnung zu beginnen",
                 buttons=[
                     MDFlatButton(
-                        text="Abbrechen", text_color=self.theme_cls.primary_color
-                    ),
-                    MDFlatButton(
-                        text="OK", text_color=self.theme_cls.primary_color
+                        on_release=lambda _: self.dialog.dismiss(), text="OK", text_color=self.theme_cls.primary_color
                     ),
                 ],
             )
@@ -103,12 +139,16 @@ class LoginButton(MDRaisedButton, TouchBehavior):
             isActive = False
 
             # Send Data to Server
-            uploadData()
+            # Start get Data
+            uploadThread = threading.Thread(target=uploadData, args=())  # Create thread
+            uploadThread.daemon = True                                # Daemonize thread
+            uploadThread.start()                                      # Start the execution
 
             # Update UI
             self.parent.parent.ids.status_indicator.color = 255,0,0,1
             self.parent.parent.ids.data_status.text_color = 1,0,0,1
             self.parent.parent.ids.data_status.text = "Keine Daten werden aufgenommen"
+            self.parent.parent.ids.user.disabled = False
         
 
 # App definition

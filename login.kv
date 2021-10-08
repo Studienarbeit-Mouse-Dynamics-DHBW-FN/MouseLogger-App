@@ -20,14 +20,15 @@ Screen:
                         height: self.texture_size[1]
                         padding_y: 15
 
-                MDTextFieldRound:
+                MDTextField:
                         id: user
                         hint_text: "e-mail"
                         icon_right: "email"
                         width: 200
                         font_size: 18
                         pos_hint: {"center_x": 0.5}
-
+                        helper_text: "E-Mail falsch"
+                        helper_text_mode: "on_error"
 
                 LoginButton:
                         id: btn
