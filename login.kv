@@ -1,6 +1,6 @@
 #:kivy 1.0.9
 
-Screen:
+MDScreen:
         MDCard: 
                 size_hint: None, None
                 size: 400, 250
@@ -9,7 +9,6 @@ Screen:
                 padding: 25
                 spacing: 25
                 orientation: "vertical"
-
 
                 MDLabel:
                         id: welcome_label
@@ -22,25 +21,20 @@ Screen:
 
                 MDTextField:
                         id: user
-                        hint_text: "e-mail"
+                        hint_text: "E-Mail"
                         icon_right: "email"
                         width: 200
                         font_size: 18
                         pos_hint: {"center_x": 0.5}
-                        helper_text: "E-Mail falsch"
+                        helper_text: "korrektes E-Mail-Format erforderlich"
                         helper_text_mode: "on_error"
 
                 LoginButton:
                         id: btn
                         text: "Teilnehmen"
-                        color: 0,255,0,1 # Grün machen
+                        color: 0,255,0,1
                         pos_hint: {"center_x": .5, "center_y": .5}
                 
-                # Dialog: Wir nehmen Ihre Daten auf (auf Ja klicken)
-                # Werden so und so gespeichert
-                # Personenbezogen
-                # Wie speichern wir die?
-
 
         MDProgressBar:
                 id: status_indicator

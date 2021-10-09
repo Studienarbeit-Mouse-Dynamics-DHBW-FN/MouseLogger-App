@@ -1,12 +1,12 @@
-import time
-from pathlib import Path
-from threading import Event, Thread
 import os
 import json
+import time
+
+from threading import Event, Thread
 from pynput.mouse import Listener, Button
 
 from utils.directions import Direction
-from consts import MS_TO_NS, NS_TO_MS, SAVE_INTERVAL_IN_S, RECORD_INTERVAL_IN_MS
+from consts import CLICK_PATH, GB_TO_B, MOVE_PATH, MS_TO_NS, NS_TO_MS, SAVE_INTERVAL_IN_S, RECORD_INTERVAL_IN_MS, SCROLL_PATH
 
 
 
@@ -27,24 +27,8 @@ class Logger:
     _scroll_data = []
 
 
-    def dump(self, filename: str, data: list) -> None:
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        with open(filename, 'w', encoding="UTF-8") as file:
-            file.write(json.dumps(data, indent=2))
-
-    def dump_data(self) -> None:
-        while not self._kill.wait(SAVE_INTERVAL_IN_S):
-            if self._dump.is_set():
-                self.dump(f'{Path.home()}/mouseDynamics/move/{int(time.time_ns() * NS_TO_MS)}.json', self._movement_data)
-                self._movement_data = []
-                self.dump(f'{Path.home()}/mouseDynamics/click/{int(time.time_ns() * NS_TO_MS)}.json', self._click_data)
-                self._click_data = []
-                self.dump(f'{Path.home()}/mouseDynamics/scroll/{int(time.time_ns() * NS_TO_MS)}.json', self._scroll_data)
-                self._scroll_data = []
-
-
     def __init__(self) -> None:
-        Thread(name="Dumper", daemon=True, target=self.dump_data).start()
+        Thread(name="Dumper", daemon=True, target=self.execute_all).start()
 
         self._LISTENER = Listener(
             on_move=self.on_move,
@@ -105,9 +89,24 @@ class Logger:
             direction=Direction((dx, dy)).name))
 
 
+    def directory_sized(self, path: str, size: int) -> None:
+        while sum([os.stat(it).st_size for it in os.scandir(path)]) > size*GB_TO_B:
+            oldest_file = min(os.scandir(path), key=os.path.getctime)
+            os.remove(os.path.abspath(oldest_file))
 
-if __name__ == '__main__':
-    logger = Logger()
-    logger.start()
-    input()
-    logger.stop()
+    def dump(self, path: str, data: list) -> None:
+        with open(f"{path}/{int(time.time_ns() * NS_TO_MS)}.json", 'w', encoding="UTF-8") as file:
+            file.write(json.dumps(data))
+
+    def execute(self, path: str, max_size_in_gb: int, data: list[dict]) -> list:
+        os.makedirs(path, exist_ok=True)
+        self.directory_sized(path, max_size_in_gb)
+        self.dump(path, data)
+        data.clear()
+
+    def execute_all(self) -> None:
+        while not self._kill.wait(SAVE_INTERVAL_IN_S):
+            if self._dump.is_set():
+                self.execute(MOVE_PATH, 3, self._movement_data)
+                self.execute(CLICK_PATH, 1, self._click_data)
+                self.execute(SCROLL_PATH, 1, self._scroll_data)
