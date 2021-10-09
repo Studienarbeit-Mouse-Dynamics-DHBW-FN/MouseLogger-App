@@ -1,6 +1,8 @@
 # App not reziable
 from kivy.config import Config
 Config.set('graphics', 'resizable', False)
+Config.set('graphics', 'width', '500')
+Config.set('graphics', 'height', '350')
 
 # local imports
 from utils.authenticator import Authenticator
