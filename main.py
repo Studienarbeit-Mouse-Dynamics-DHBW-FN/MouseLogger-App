@@ -1,8 +1,9 @@
 # App not reziable
 from kivy.config import Config
-Config.set('graphics', 'resizable', False)
 Config.set('graphics', 'width', '500')
 Config.set('graphics', 'height', '350')
+Config.set('graphics', 'resizable', False)
+Config.set('kivy','window_icon','icon_red.png')
 
 # local imports
 from utils.authenticator import Authenticator
@@ -14,7 +15,6 @@ from kivymd.app import MDApp
 from kivy.lang import Builder
 from kivymd.uix.button import MDRaisedButton
 from kivymd.uix.behaviors import TouchBehavior
-import requests
 
 # Import UI
 from kivymd.uix.button import MDFlatButton
@@ -67,11 +67,13 @@ class LoginButton(MDRaisedButton, TouchBehavior):
                 self.stop_tracking()
                 self.recording_inactive()
                 self._running = False
+                Window.set_icon("icon_red.png")
                 return
 
             self.start_tracking()
             self.recording_active()
             self._running = True
+            Window.set_icon("icon_green.png")
             return
 
         requested_mail = self.parent.parent.ids["user"].text
