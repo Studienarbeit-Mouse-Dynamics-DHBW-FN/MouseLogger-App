@@ -20,19 +20,16 @@ import requests
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from kivy.core.window import Window
-from kivy.app import App
-from kivy.uix.label import Label
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
-from kivy.uix.popup import Popup
 
 
+AUTHENTICATOR = Authenticator()
 
 # Create custom Login Button
 class LoginButton(MDRaisedButton, TouchBehavior):
-    AUTHENTICATOR = Authenticator()
     LOGGER = Logger()
     UPLOADER = Uploader()
+
+    _running = False
 
 
     def start_tracking(self) -> None:
@@ -62,40 +59,40 @@ class LoginButton(MDRaisedButton, TouchBehavior):
 
 
     def on_press(self) -> None:
-        mail = self.parent.parent.ids.user.text
-        if self.AUTHENTICATOR.valid_email(mail):
-            self.parent.parent.ids.user.error = False
-            self.parent.parent.ids.user.disabled = True
-        else:
-            self.parent.parent.ids.user.error = True
-            return
+        if AUTHENTICATOR.is_authenticated():
+            self.parent.parent.ids["user"].text = AUTHENTICATOR.get_mail()
+            self.parent.parent.ids["user"].disabled = True
 
-
-        if self.text == "Teilnehmen":
-            if not self.AUTHENTICATOR.valid_email(mail):
+            if self._running:
+                self.stop_tracking()
+                self.recording_inactive()
+                self._running = False
                 return
-            
-            self.AUTHENTICATOR.authenticate(mail)
-
-            # Dialog machen
-            # TODO: Dialog Buttons ansteurn
-            self.dialog = MDDialog(
-                text="Ihre Daten werden nun aufgezeichnet. \nBitte bestätigen Sie Ihre E-Mail um mit der Aufzeichnung zu beginnen",
-                buttons=[
-                    MDFlatButton(
-                        on_release=lambda _: self.dialog.dismiss(), text="OK", text_color=self.theme_cls.primary_color
-                    ),
-                ],
-            )
-            self.dialog.open()
 
             self.start_tracking()
             self.recording_active()
+            self._running = True
+            return
 
-        else:
-            self.stop_tracking()
-            self.recording_inactive()
-        
+        requested_mail = self.parent.parent.ids["user"].text
+        if not AUTHENTICATOR.valid_email(requested_mail):
+            self.parent.parent.ids["user"].error = True
+            return
+        self.parent.parent.ids["user"].error = False
+
+        AUTHENTICATOR.authenticate(requested_mail)
+
+        # it = MDDialog(
+        #     text="Ihre Daten werden nun aufgezeichnet. \nBitte bestätigen Sie Ihre E-Mail um mit der Aufzeichnung zu beginnen",
+        #     buttons=[
+        #         MDFlatButton(
+        #             on_release=lambda _: it.dismiss(), text="OK", text_color=self.theme_cls.primary_color
+        #         ),
+        #     ],
+        # )
+        # it.open()
+
+
 
 # App definition
 class MouseLoggerApp(MDApp):
@@ -104,6 +101,13 @@ class MouseLoggerApp(MDApp):
         self.theme_cls.primary_palette = "BlueGray"
         Window.bind(on_request_close=self.on_request_close)
         return Builder.load_file('login.kv')
+
+    def on_start(self):
+        """if device already authenticated set mail"""
+        if AUTHENTICATOR.is_authenticated():
+            self.root.ids["user"].text = AUTHENTICATOR.get_mail()
+            self.root.ids["user"].disabled = True
+        return super().on_start()
 
     # When App wnats to close
     def on_request_close(self, *args):
