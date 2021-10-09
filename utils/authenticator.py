@@ -48,14 +48,21 @@ class Authenticator:
         self._authenticate.set()
 
 
+    def save_authentication(self) -> None:
+        self._authenticated = True
+        self._authenticate.clear()
+        self._kill.set()
+        os.makedirs(FOLDER_PATH, exist_ok=True)
+        with open(CONFIG_PATH, 'w', encoding="UTF-8") as file:
+            file.write(json.dumps(dict(mail=self._mail)))
+
+
     def auth_loop(self) -> None:
         while not self._kill.wait(AUTHENTICATION_INTERVAL_IN_S):
             if self._authenticate.is_set():
                 try:
                     response = requests.post(AUTH_URL, json=dict(mail=self._mail, id=mac()))
                     if response.json()["is_verified"]:
-                        self._authenticated = True
-                        self._authenticate.clear()
-                        self._kill.set()
+                        self.save_authentication()
                 finally:
                     pass
