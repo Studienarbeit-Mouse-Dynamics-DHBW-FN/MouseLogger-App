@@ -27,7 +27,7 @@ AUTHENTICATOR = Authenticator()
 # Create custom Login Button
 class LoginButton(MDRaisedButton, TouchBehavior):
     LOGGER = Logger()
-    UPLOADER = Uploader()
+    UPLOADER = Uploader(AUTHENTICATOR)
 
     _running = False
 

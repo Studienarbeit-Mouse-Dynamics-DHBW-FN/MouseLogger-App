@@ -11,6 +11,7 @@ from consts import AUTH_URL, AUTHENTICATION_INTERVAL_IN_S, CONFIG_PATH, FOLDER_P
 class Authenticator:
     _authenticated = False
     _mail = ""
+    _mac = mac()
 
     _kill = Event()
     _authenticate = Event()
@@ -23,10 +24,11 @@ class Authenticator:
             with open(f"{CONFIG_PATH}", 'r', encoding="UTF-8") as config_file:
                 data = json.load(config_file)
                 self._mail = data["mail"]
+                self._mac = data["mac"]
                 self._authenticated = True
             return
 
-        Thread(name=Authenticator, daemon=True, target=self.auth_loop)
+        Thread(name="Authenticator", daemon=True, target=self.auth_loop).start()
 
     def __delete__(self, _) -> None:
         self._kill.set()
@@ -37,6 +39,9 @@ class Authenticator:
     
     def get_mail(self) -> bool:
         return self._mail
+
+    def get_mac(self) -> str:
+        return self._mac
 
 
     def valid_email(self, mail: str) -> bool:
@@ -54,15 +59,16 @@ class Authenticator:
         self._kill.set()
         os.makedirs(FOLDER_PATH, exist_ok=True)
         with open(CONFIG_PATH, 'w', encoding="UTF-8") as file:
-            file.write(json.dumps(dict(mail=self._mail)))
+            file.write(json.dumps(dict(mail=self._mail, mac=self._mac)))
 
 
     def auth_loop(self) -> None:
         while not self._kill.wait(AUTHENTICATION_INTERVAL_IN_S):
             if self._authenticate.is_set():
                 try:
-                    response = requests.post(AUTH_URL, json=dict(mail=self._mail, id=mac()))
-                    if response.json()["is_verified"]:
+                    response = requests.post(AUTH_URL, json=dict(mail=self._mail, mac=self._mac))
+                    if json.loads(response.text)["isVerified"]:
                         self.save_authentication()
+                    response.close()
                 finally:
                     pass

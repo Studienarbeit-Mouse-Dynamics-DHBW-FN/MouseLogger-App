@@ -2,15 +2,19 @@ from threading import Event, Thread
 import os
 import requests
 import json
+from utils.authenticator import Authenticator
 
-from consts import CLICK_PATH, MOVE_PATH, SCROLL_PATH, UPLOAD_INTERVAL_IN_S, SEND_URL
+from consts import CLICK_PATH, CLICK_URL, MOVE_PATH, SCROLL_PATH, SCROLL_URL, UPLOAD_INTERVAL_IN_S, MOVE_URL
 
 
 class Uploader:
     _kill = Event()
     _upload = Event()
 
-    def __init__(self) -> None:
+    _authenticator: Authenticator
+
+    def __init__(self, auth: Authenticator) -> None:
+        self._authenticator = auth
         Thread(name="Uploader", daemon=True, target=self.upload_data).start()
 
     def __delete__(self, _) -> None:
@@ -24,33 +28,20 @@ class Uploader:
         self._upload.clear()
 
 
-    def get_data(self, path: str) -> list[dict]:
-        data = []
-        for f in os.scandir(path):
-            with open(f, 'r', encoding="UTF-8") as file:
-                data.extend(json.load(file))
-        return data
-
-    def get_move_data(self) -> list[dict]:
-        return self.get_data(MOVE_PATH)
-
-    def get_click_data(self) -> list[dict]:
-        return self.get_data(CLICK_PATH)
-
-    def get_scroll_data(self) -> list[dict]:
-        return self.get_data(SCROLL_PATH)
-
+    def upload_single_data(self, path: str, url: str) -> None:
+        try:
+            for file in os.scandir(path):
+                data = json.load(open(file, 'r', encoding="UTF-8"))
+                response = requests.post(url, json=dict(mac=self._authenticator.get_mac(), data=data))
+                if response.ok:
+                    os.remove(file)
+                response.close()
+        finally:
+            pass
 
     def upload_data(self):
         while not self._kill.wait(UPLOAD_INTERVAL_IN_S):
             if self._upload.is_set():
-                self.get_move_data()
-                self.get_click_data()
-                self.get_scroll_data()
-                # # upload data successful -> delete files
-                # try:
-                #     # Daten die hochgeladen sind löschen
-                #     res = requests.post(SEND_URL, json={'test': 'x'})
-                #     print(res.text)
-                # except:
-                #     print('err: no data uploaded')
+                self.upload_single_data(MOVE_PATH, MOVE_URL)
+                self.upload_single_data(CLICK_PATH, CLICK_URL)
+                self.upload_single_data(SCROLL_PATH, SCROLL_URL)
