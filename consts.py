@@ -1,5 +1,7 @@
 from pathlib import Path
 
+DELETE_UPLOADED_DATA = True
+
 MS_TO_NS = 1e6
 NS_TO_MS = 1e-6
 
@@ -7,7 +9,7 @@ GB_TO_B = 1e9
 
 
 RECORD_INTERVAL_IN_MS = 16
-SAVE_INTERVAL_IN_S = .25 * 60
+SAVE_INTERVAL_IN_S = 30
 
 
 FOLDER_PATH = f"{Path.home()}/mouseDynamics"
@@ -17,10 +19,10 @@ CLICK_PATH = f"{FOLDER_PATH}/click"
 SCROLL_PATH = f"{FOLDER_PATH}/scroll"
 
 
-UPLOAD_INTERVAL_IN_S = 10
+UPLOAD_INTERVAL_IN_S = 30
 
 API_VERSION = "v1"
-BASE_URL = f"https://mlapi.leinz.dev/{API_VERSION}"
+BASE_URL = f"https://api.mouselogger.de/{API_VERSION}"
 AUTH_URL = f"{BASE_URL}/auth"
 
 MOVE_URL = f"{BASE_URL}/movedata"

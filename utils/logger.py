@@ -86,7 +86,7 @@ class Logger:
         self._scroll_data.append(dict(
             timestamp=int(time.time_ns() * NS_TO_MS),
             position=dict(x=x, y=y),
-            direction=Direction((dx, dy)).name))
+            direction=Direction.getDirection(dx, dy).name))
 
 
     def directory_sized(self, path: str, size: int) -> None:
@@ -107,6 +107,9 @@ class Logger:
     def execute_all(self) -> None:
         while not self._kill.wait(SAVE_INTERVAL_IN_S):
             if self._dump.is_set():
-                self.execute(MOVE_PATH, 3, self._movement_data)
-                self.execute(CLICK_PATH, 1, self._click_data)
-                self.execute(SCROLL_PATH, 1, self._scroll_data)
+                try:
+                    self.execute(MOVE_PATH, 3, self._movement_data)
+                    self.execute(CLICK_PATH, 1, self._click_data)
+                    self.execute(SCROLL_PATH, 1, self._scroll_data)
+                finally:
+                    pass

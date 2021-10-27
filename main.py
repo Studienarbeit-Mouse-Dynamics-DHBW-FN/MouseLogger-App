@@ -1,7 +1,7 @@
 # App not reziable
 from kivy.config import Config
 Config.set('graphics', 'width', '500')
-Config.set('graphics', 'height', '350')
+Config.set('graphics', 'height', '450')
 Config.set('graphics', 'resizable', False)
 Config.set('kivy','window_icon','icon_red.png')
 
@@ -82,18 +82,13 @@ class LoginButton(MDRaisedButton, TouchBehavior):
             return
         self.parent.parent.ids["user"].error = False
 
-        AUTHENTICATOR.authenticate(requested_mail)
+        device_type = self.parent.parent.ids["device"].text
+        if not device_type:
+            self.parent.parent.ids["device"].error = True
+            return
+        self.parent.parent.ids["device"].error = False
 
-        # it = MDDialog(
-        #     text="Ihre Daten werden nun aufgezeichnet. \nBitte bestätigen Sie Ihre E-Mail um mit der Aufzeichnung zu beginnen",
-        #     buttons=[
-        #         MDFlatButton(
-        #             on_release=lambda _: it.dismiss(), text="OK", text_color=self.theme_cls.primary_color
-        #         ),
-        #     ],
-        # )
-        # it.open()
-
+        AUTHENTICATOR.authenticate(requested_mail, device_type)
 
 
 # App definition
@@ -109,6 +104,8 @@ class MouseLoggerApp(MDApp):
         if AUTHENTICATOR.is_authenticated():
             self.root.ids["user"].text = AUTHENTICATOR.get_mail()
             self.root.ids["user"].disabled = True
+            self.root.ids["device"].text = AUTHENTICATOR.get_device()
+            self.root.ids["device"].disabled = True
         return super().on_start()
 
     # When App wnats to close
