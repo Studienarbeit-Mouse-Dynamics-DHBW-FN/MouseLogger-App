@@ -98,7 +98,7 @@ class Logger:
         with open(f"{path}/{int(time.time_ns() * NS_TO_MS)}.json", 'w', encoding="UTF-8") as file:
             file.write(json.dumps(data))
 
-    def execute(self, path: str, max_size_in_gb: int, data: list[dict]) -> list:
+    def execute(self, path: str, max_size_in_gb: int, data: list) -> list:
         os.makedirs(path, exist_ok=True)
         self.directory_sized(path, max_size_in_gb)
         self.dump(path, data)
