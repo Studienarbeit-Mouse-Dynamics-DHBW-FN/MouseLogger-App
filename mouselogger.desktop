@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+Terminal=false
+Exec=/usr/bin/mouselogger
+Name=Mouselogger
+Icon=/usr/share/applications/mouselogger.png
