@@ -3,12 +3,13 @@ from kivy.config import Config
 Config.set('graphics', 'width', '500')
 Config.set('graphics', 'height', '450')
 Config.set('graphics', 'resizable', False)
-Config.set('kivy','window_icon','icon_red.png')
+Config.set('kivy', 'window_icon', 'favicon.ico')
 
 # local imports
 from utils.authenticator import Authenticator
 from utils.logger import Logger
 from utils.uploader import Uploader
+from layout import LAYOUT
 
 # All Imports
 from kivymd.app import MDApp
@@ -67,13 +68,11 @@ class LoginButton(MDRaisedButton, TouchBehavior):
                 self.stop_tracking()
                 self.recording_inactive()
                 self._running = False
-                Window.set_icon("icon_red.png")
                 return
 
             self.start_tracking()
             self.recording_active()
             self._running = True
-            Window.set_icon("icon_green.png")
             return
 
         requested_mail = self.parent.parent.ids["user"].text
@@ -97,80 +96,7 @@ class MouseLoggerApp(MDApp):
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "BlueGray"
         Window.bind(on_request_close=self.on_request_close)
-        return Builder.load_string(""" 
-        
-#:kivy 1.0.9
-
-MDScreen:
-        MDCard: 
-                size_hint: None, None
-                size: 400, 250
-                pos_hint: {"center_x": 0.5, "center_y": 0.5}
-                elevantion: 10
-                padding: 25
-                spacing: 25
-                orientation: "vertical"
-
-                MDLabel:
-                        id: welcome_label
-                        text: "MouseLogger"
-                        font_size: 40
-                        halign: 'center'
-                        size_hint_y: None
-                        height: self.texture_size[1]
-                        padding_y: 15
-
-                MDTextField:
-                        id: user
-                        hint_text: "E-Mail"
-                        icon_right: "email"
-                        width: 200
-                        font_size: 18
-                        pos_hint: {"center_x": 0.5}
-                        helper_text: "korrektes E-Mail-Format erforderlich"
-                        helper_text_mode: "on_error"
-
-                MDTextField:
-                        id: device
-                        hint_text: "Device"
-                        width: 200
-                        font_size: 18
-                        pos_hint: {"center_x": 0.5}
-                        helper_text: "Typ des genutzten Gerätes erforderlich (z.B. Laptop)"
-                        helper_text_mode: "on_error"
-
-                LoginButton:
-                        id: btn
-                        text: "Teilnehmen"
-                        color: 0,255,0,1
-                        pos_hint: {"center_x": .5, "center_y": .5}
-                
-
-        MDProgressBar:
-                id: status_indicator
-                value: 100
-                color: 255,0,0,1
-                halign: 'center'
-                size_hint_y: None
-                padding_y: 15
-
-        MDLabel:
-                id: data_status
-                text: "Keine Daten werden aufgenommen"
-                font_size: 10
-                halign: 'center'
-                size_hint_y: None
-                height: self.texture_size[1]
-                padding_y: 15
-                theme_text_color: "Custom"
-                text_color: 1, 0, 0, 1
-
-
-# Wenn läuft = X = minimieren
-# Wenn nicht läuft schließt app
-        
-        """)
-        # return Builder.load_file('login.kv')
+        return Builder.load_string(LAYOUT)
 
     def on_start(self):
         """if device already authenticated set mail"""
