@@ -32,7 +32,7 @@ class Uploader:
         try:
             for file in os.scandir(path):
                 data = json.load(open(file, 'r', encoding="UTF-8"))
-                response = requests.post(url, json=dict(mac=self._authenticator.get_mac(), data=data))
+                response = requests.post(url, json=dict(mac=self._authenticator.get_mac(), data=data), timeout=15)
                 if response.ok and DELETE_UPLOADED_DATA:
                     os.remove(file)
                 response.close()
