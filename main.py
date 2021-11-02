@@ -88,6 +88,15 @@ class LoginButton(MDRaisedButton, TouchBehavior):
         self.parent.parent.ids["device"].error = False
 
         AUTHENTICATOR.authenticate(requested_mail, device_type)
+        it = MDDialog(
+            text="Ihre E-Mail-Adresse wurde erfolgreich übermittelt.\n\nBitte identifizieren Sie sich in der erhaltenen E-Mail und betätigen diesen Kopf erneut.",
+            buttons=[
+                MDFlatButton(
+                    on_release=lambda _: it.dismiss(), text="OK", text_color=self.theme_cls.primary_color
+                ),
+            ],
+        )
+        it.open()
 
 
 # App definition
