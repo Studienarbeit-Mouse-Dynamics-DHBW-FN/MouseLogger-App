@@ -10,6 +10,8 @@ from utils.authenticator import Authenticator
 from utils.logger import Logger
 from utils.uploader import Uploader
 from layout import LAYOUT
+import os
+import json
 
 # All Imports
 from kivymd.app import MDApp
@@ -22,6 +24,7 @@ from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from kivy.core.window import Window
 
+from consts import PARTIC_PATH, FOLDER_PATH
 
 AUTHENTICATOR = Authenticator()
 
@@ -104,7 +107,7 @@ class MouseLoggerApp(MDApp):
     def build(self):
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "BlueGray"
-        Window.bind(on_request_close=self.on_request_close)
+        # Window.bind(on_request_close=self.on_request_close)
         return Builder.load_string(LAYOUT)
 
     def on_start(self):
@@ -114,13 +117,33 @@ class MouseLoggerApp(MDApp):
             self.root.ids["user"].disabled = True
             self.root.ids["device"].text = AUTHENTICATOR.get_device()
             self.root.ids["device"].disabled = True
+
+            # Check if user want to use app always
+            os.makedirs(FOLDER_PATH, exist_ok=True)
+            if os.path.exists(PARTIC_PATH):
+                with open(f"{PARTIC_PATH}", 'r', encoding="UTF-8") as config_file:
+                    data = json.load(config_file)
+                    part = data["participate"]
+                    self.root.ids["parti"].active = part
+                    
+                    if part:
+                        self.root.ids["btn"].on_press()
+
         return super().on_start()
 
+    # Change Value of Checkbox
+    def on_checkbox_active(self, checkbox, value):
+        # Save state
+        os.makedirs(FOLDER_PATH, exist_ok=True)
+        with open(PARTIC_PATH, 'w', encoding="UTF-8") as file:
+            file.write(json.dumps(dict(participate=value)))
+
+
     # When App wnats to close
-    def on_request_close(self, *args):
-        Window.minimize()
-        self.closeDialog()
-        return True
+    # def on_request_close(self, *args):
+    #     Window.minimize()
+    #     self.closeDialog()
+    #     return True
 
     # Verify Close dialog
     def closeDialog(self):

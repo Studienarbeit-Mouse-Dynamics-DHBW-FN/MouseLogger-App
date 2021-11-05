@@ -14,6 +14,7 @@ SAVE_INTERVAL_IN_S = 30
 
 FOLDER_PATH = f"{Path.home()}/mouseDynamics"
 CONFIG_PATH = f"{FOLDER_PATH}/config"
+PARTIC_PATH = f"{FOLDER_PATH}/participate"
 MOVE_PATH = f"{FOLDER_PATH}/move"
 CLICK_PATH = f"{FOLDER_PATH}/click"
 SCROLL_PATH = f"{FOLDER_PATH}/scroll"
