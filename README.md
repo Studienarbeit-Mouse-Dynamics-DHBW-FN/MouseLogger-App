@@ -37,3 +37,6 @@ To build the app under windows, just run: <br>
 To build the app under Linux, just run: <br>
 `pyinstaller --onefile main.py` <br>
 (BEWARE: This changes the `main.spec` with is used for the windows build.)
+<br><br><br>
+To build the app under MacOS, just run: <br>
+`pyinstaller --onefile --windowed --icon favicon.ico --name mouselogger main.py` <br>
