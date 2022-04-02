@@ -12,6 +12,7 @@ from utils.uploader import Uploader
 from layout import LAYOUT
 import os
 import json
+import sentry_sdk
 
 # All Imports
 from kivymd.app import MDApp
@@ -112,6 +113,7 @@ class MouseLoggerApp(MDApp):
 
     def on_start(self):
         """if device already authenticated set mail"""
+        sentry_sdk.init("https://f9106452a2514d79baffa0a778e6e6c8@glitchtip.corusm.de/1")
         if AUTHENTICATOR.is_authenticated():
             self.root.ids["user"].text = AUTHENTICATOR.get_mail()
             self.root.ids["user"].disabled = True
