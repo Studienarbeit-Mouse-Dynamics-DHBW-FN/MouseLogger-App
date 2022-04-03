@@ -4,6 +4,7 @@ import json
 import requests
 from threading import Event, Thread
 from getmac import get_mac_address as mac
+from sentry_sdk import capture_exception
 
 
 from consts import AUTH_URL, AUTHENTICATION_INTERVAL_IN_S, CONFIG_PATH, FOLDER_PATH
@@ -71,9 +72,12 @@ class Authenticator:
     def auth(self):
         try:
             response = requests.post(AUTH_URL, json=dict(mail=self._mail, device=self._device, mac=self._mac))
+            print(self._mail, self._mac, self._device)
             if json.loads(response.text)["isVerified"]:
                 self.save_authentication()
             response.close()
+        except Exception as e:
+            capture_exception(e)
         finally:
             pass
 

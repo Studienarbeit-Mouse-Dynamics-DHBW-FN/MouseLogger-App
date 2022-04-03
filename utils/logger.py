@@ -4,6 +4,7 @@ import time
 
 from threading import Event, Thread
 from pynput.mouse import Listener, Button
+from sentry_sdk import capture_exception
 
 from utils.directions import Direction
 from consts import CLICK_PATH, GB_TO_B, MOVE_PATH, MS_TO_NS, NS_TO_MS, SAVE_INTERVAL_IN_S, RECORD_INTERVAL_IN_MS, SCROLL_PATH
@@ -76,6 +77,8 @@ class Logger:
                     button=button.name,
                     startPosition=dict(x=self._click_positions[button.name][0], y=self._click_positions[button.name][1]),
                     endPosition=dict(x=x, y=y)))
+            except Exception as e:
+                capture_exception(e)
             except:
                 pass
 

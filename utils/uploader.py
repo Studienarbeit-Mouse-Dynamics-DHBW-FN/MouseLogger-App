@@ -3,6 +3,7 @@ import os
 import requests
 import json
 from utils.authenticator import Authenticator
+from sentry_sdk import capture_exception
 
 from consts import CLICK_PATH, CLICK_URL, DELETE_UPLOADED_DATA, MOVE_PATH, SCROLL_PATH, SCROLL_URL, UPLOAD_INTERVAL_IN_S, MOVE_URL
 
@@ -36,6 +37,8 @@ class Uploader:
                 if response.ok and DELETE_UPLOADED_DATA:
                     os.remove(file)
                 response.close()
+        except Exception as e:
+            capture_exception(e)
         finally:
             pass
 
@@ -46,5 +49,7 @@ class Uploader:
                     self.upload_single_data(MOVE_PATH, MOVE_URL)
                     self.upload_single_data(CLICK_PATH, CLICK_URL)
                     self.upload_single_data(SCROLL_PATH, SCROLL_URL)
+                except Exception as e:
+                    capture_exception(e)
                 finally:
                     pass
