@@ -30,17 +30,20 @@ class Uploader:
 
 
     def upload_single_data(self, path: str, url: str) -> None:
-        try:
-            for file in os.scandir(path):
-                data = json.load(open(file, 'r', encoding="UTF-8"))
+        for file in os.scandir(path):
+            try:
+                file_data = open(file, 'r', encoding="UTF-8").read()
+                if file_data == "" or file_data == "\n" or file_data == "[]" or file_data == "[]\n":
+                    os.remove(file)
+                    continue
+
+                data = json.loads(file_data)
                 response = requests.post(url, json=dict(mac=self._authenticator.get_mac(), data=data), timeout=15)
                 if response.ok and DELETE_UPLOADED_DATA:
                     os.remove(file)
                 response.close()
-        except Exception as e:
-            capture_exception(e)
-        finally:
-            pass
+            except Exception as e:
+                capture_exception(e)
 
     def upload_data(self):
         while not self._kill.wait(UPLOAD_INTERVAL_IN_S):
@@ -51,5 +54,3 @@ class Uploader:
                     self.upload_single_data(SCROLL_PATH, SCROLL_URL)
                 except Exception as e:
                     capture_exception(e)
-                finally:
-                    pass
